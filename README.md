@@ -28,7 +28,7 @@
 # apt-get install ros-kinetic-gazebo-ros-control
 ```
 [If ros-kinetic-desktop-full was used to install, the following packages need to be installed.](https://emanual.robotis.com/docs/en/platform/op3/simulation/#gazebo-installation)
-- このpackageをインストール
+- op3_contoller(このpackage)をインストール
 ```
 cd ~/catkin_ws/src
 git clone clone URL
@@ -39,16 +39,19 @@ git clone clone URL
 ```
 roslaunch op3_gazebo robotis_world.launch
 ```
-2.  作成中
-
+2. op3_controllerを起動する
+```
+rosrun op3_controller record.py
+rosrun op3_controller controller.py
+rosrun op3_controller learning.py
+```
 # おまけ
 - GUIコマンドを利用したデモ
 ```
 roslaunch op3_manager op3_gazebo.launch
 roslaunch op3_demo demo.launch
 ```
-- OP3のトピックまとめ  
-[OP3のトピックまとめ](https://docs.google.com/document/d/12Ig3dS7uL5MNAOPqCCfnPpRVxRyvWaqoya56uJFsFv4/edit?usp=sharing)
+- [OP3のトピックまとめ](https://docs.google.com/document/d/12Ig3dS7uL5MNAOPqCCfnPpRVxRyvWaqoya56uJFsFv4/edit?usp=sharing)
 
 
 # 参考

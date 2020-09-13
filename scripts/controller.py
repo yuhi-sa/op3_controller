@@ -4,7 +4,7 @@ import rospy
 import time
 import matplotlib.pyplot as plt
 import numpy as np
-#メッセージ型をinnpo-to 
+#メッセージ型をインポート
 from std_msgs.msg import Float64
 from op3_controller.msg import command 
 
@@ -28,6 +28,7 @@ def callback(data):
     #右足首
     r_ank_pitch = rospy.Publisher('robotis_op3/r_ank_pitch_position/command', Float64, queue_size=1)
     r_ank_roll = rospy.Publisher('robotis_op3/r_ank_roll_position/command', Float64, queue_size=1)     
+
     #データをpublish
     l_hip_pitch.publish(data.l_hip_pitch)
     l_hip_roll.publish(data.l_hip_roll)
