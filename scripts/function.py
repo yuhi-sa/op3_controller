@@ -13,15 +13,15 @@ def take_action(Q_table,row):
 
     #最大の価値行動価値のものを選ぶ
     for i in range(row):
-        action[i]=-1.06 + 0.01*float(np.argmax(Q_table[i,:]))
+        action[i]=-1.00 + 0.01*float(np.argmax(Q_table[i,:]))
     return action
 
 def update_Q_tabele(Q_table,row,distance,history):
     gamma=0.01 #学習率
-    history.append(data.data)
-    reward = data.data - history[-1]
+    reward = distance - history[-1]
+    history.append(distance)
     
-    Q_table = Q_table + (reward + gamma*max(Q_table)-Q_table))
+    #Q_table = Q_table + (reward + gamma*max(Q_table)-Q_table))
     return Q_table
     
 
