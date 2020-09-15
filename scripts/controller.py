@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 #メッセージ型をインポート
 from std_msgs.msg import Float64
-from op3_controller.msg import command 
+from op3_controller.msg import Command 
 
 def callback(data):
     #Publisherを作成('トピック名',型,サイズ)
@@ -44,15 +44,15 @@ def callback(data):
     r_ank_roll.publish(data.r_ank_roll)
 
 def controller():
-    #おまじない　ノード名を宣言
+    #ノード名を宣言
     rospy.init_node('controller', anonymous=True)
-    #Subscriberを作成．トピックを読み込む．
-    sub = rospy.Subscriber('command_pub', command, callback)
+    #Subscriberを作成
+    sub = rospy.Subscriber('command_pub', Command, callback)
     #ループの周期．
     rate = rospy.Rate(10)
 
     while not rospy.is_shutdown():
-        #データをパブリッシュ
+
         rate.sleep()
 
 if __name__ == '__main__':
