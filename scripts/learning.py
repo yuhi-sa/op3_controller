@@ -14,139 +14,116 @@ from std_msgs.msg import String
 from op3_controller.msg import Command 
 from gazebo_msgs.msg import ModelStates
 
-#強化学習のために作ったライブラリをインポート
-from function import make_Q_table
-from function import take_action
-from function import update_Q_tabele
+
+from function import Agent
+from motion import Motion
+#from videomake import videomake
 
 import torch
 from torch import nn
 from torch import optim
 import torch.nn.functional as F
 
-history =[0]
-
-global start_time
-start_time = 0
-global trial
-trial = 0
-global Q_table
-
-#動かせる部位の数
-global action_len
-action_len = 12
-
 
 def reset(time_record):
     print('############## Hello New World ##############')
-    #Publisherを作成('トピック名',型,サイズ)
+
+    #初期値に戻す
     pub = rospy.Publisher('command_pub', Command, queue_size=1)
-    #初期状態
-    array_r = Command()
-    #左腰
-    array_r.l_hip_pitch = 0.00
-    array_r.l_hip_roll = 0.00
-    array_r.l_hip_yaw = 0.00
-    #右腰
-    array_r.r_hip_pitch = 0.00
-    array_r.r_hip_roll = 0.00
-    array_r.r_hip_yaw = 0.00
-    #左ひざ
-    array_r.l_knee = 0.00
-    #右ひざ
-    array_r.r_knee = 0.00
-    #左足首
-    array_r.l_ank_pitch = 0.00
-    array_r.l_ank_roll = 0.00
-    #右足首
-    array_r.r_ank_pitch = 0.00
-    array_r.r_ank_roll  = 0.00
-    #データをパブリッシュ
-    pub.publish(array_r)
+    array = motion.motion(0)
+    pub.publish(array)
 
     time.sleep(1)
-    pub.publish(array_r)
-    time.sleep(2)
+
+    #初期値に戻す
+    pub = rospy.Publisher('command_pub', Command, queue_size=1)
+    array = motion.motion(0)
+    pub.publish(array)
+
+    #世界を無に
     reset_world = rospy.ServiceProxy('/gazebo/reset_world',Empty)
     reset_world()
+
     time.sleep(3)
-    start_time = time_record
+
+    agent.start_time = time_record
     return time_record
 
 def callback(data):
-    global start_time
     time_record = rospy.get_time()
-    state = []
+    next_state = []
     #状態を取得
-    state.append(data.pose[1].position.x)
-    state.append(data.pose[1].position.y)
-    state.append(data.pose[1].position.z)
-    state.append(data.pose[1].orientation.x)
-    state.append(data.pose[1].orientation.y)
-    state.append(data.pose[1].orientation.z)
-    state.append(data.pose[1].orientation.w)
-    state.append(data.twist[1].linear.x)
-    state.append(data.twist[1].linear.y)
-    state.append(data.twist[1].linear.z)
-    state.append(data.twist[1].angular.x)
-    state.append(data.twist[1].angular.y)
-    state.append(data.twist[1].angular.z)
+    next_state.append(data.pose[1].position.x)
+    next_state.append(data.pose[1].position.y)
+    next_state.append(data.pose[1].position.z)
+    next_state.append(data.pose[1].orientation.x)
+    next_state.append(data.pose[1].orientation.y)
+    next_state.append(data.pose[1].orientation.z)
+    next_state.append(data.pose[1].orientation.w)
+    next_state.append(data.twist[1].linear.x)
+    next_state.append(data.twist[1].linear.y)
+    next_state.append(data.twist[1].linear.z)
+    next_state.append(data.twist[1].angular.x)
+    next_state.append(data.twist[1].angular.y)
+    next_state.append(data.twist[1].angular.z)
 
     #進んだ距離を取得
     distance = data.pose[1].position.x
 
+    #ここで学習
+    if agent.state is not None:
+        #Pytorchで使える形に
+        next_state = np.array(next_state)
+        next_state = torch.from_numpy(next_state).type(torch.FloatTensor)
+        next_state = torch.unsqueeze(next_state, 0)
+
+        reward = distance
+        reward = np.array(reward)
+        reward = torch.from_numpy(reward).type(torch.FloatTensor)
+        reward = torch.unsqueeze(reward, 0)
+
+        agent.memorize(next_state, reward)
+        agent.update_q_function()
+
+    agent.state = next_state
+
+    ##################20秒ごとに試行をリセット##################
+    if time_record > (agent.start_time+20):
+        agent.start_time = reset(time_record)
+        agent.episode = agent.episode+1
+
+    #所定回数の時は録画
+
+    #if agent.episode == 2:
+        #videomake(agent.episode)
+
+    ######################################################
+
     #Publisherを作成('トピック名',型,サイズ)
     pub = rospy.Publisher('command_pub', Command, queue_size=1)
-
-    #20秒ごとにリセット
-    if time_record > (start_time+10):
-        start_time = reset(time_record)
-
-    ##############  強化学習頑張れーーー  #################
-    # Qtableを作る(最初の一回だけ)
-    global trial
-    global action_len
-    if trial == 0:
-        state_len = len(state)
-        global Q_table
-        Q_table = make_Q_table(state_len, action_len)
     
     #行動を決定
-    action = take_action(Q_table, trial, state, action_len)
+    agent.action = agent.get_action(agent.episode)
 
-    #行動価値関数を更新
-    #Q_table = update_Q_tabele(Q_table)
-
-    ################################################
-    array = Command()
-    #左腰
-    array.l_hip_pitch = action[0]
-    array.l_hip_roll = action[1]
-    array.l_hip_yaw = action[2]
-    #右腰
-    array.r_hip_pitch = action[3]
-    array.r_hip_roll = action[4]
-    array.r_hip_yaw = action[5]
-    #左ひざ
-    array.l_knee = action[6]*0
-    #右ひざ
-    array.r_knee = action[7]*0
-    #左足首
-    array.l_ank_pitch = action[8]
-    array.l_ank_roll = action[9]
-    #右足首
-    array.r_ank_pitch = action[10]
-    array.r_ank_roll  = action[11]
-    #データをパブリッシュ
+    #行動をパブリッシュ
+    pub = rospy.Publisher('command_pub', Command, queue_size=1)
+    array = motion.motion(agent.action)
     pub.publish(array)
+
     
-    print(trial,'回目','time',math.floor(time_record-start_time),'distance',distance)
-    trial = trial +1
+    print(agent.episode+1,'試行目',agent.trial,'回目','time',math.floor(time_record-agent.start_time),'distance',distance)
+    agent.trial = agent.trial +1
 
 
 def controller():
     #おまじない　ノード名を宣言
     rospy.init_node('controller', anonymous=True)
+
+    #初期値に戻す
+    pub = rospy.Publisher('command_pub', Command, queue_size=1)
+    array = motion.motion(0)
+    pub.publish(array)
+
     #Subscriberを作成．トピックを読み込む．
     sub = rospy.Subscriber('gazebo/model_states', ModelStates, callback)
     #ループの周期．
@@ -157,6 +134,14 @@ def controller():
 
 if __name__ == '__main__':
     try:
+        num_states = 13 #状態数
+        num_actions = 17 #状態数
+        global agent
+        agent = Agent(num_states, num_actions) #強化学習するエージェント
+
+        array = Command()
+        global motion
+        motion = Motion(array)
         controller()
     except rospy.ROSInitException:
         pass

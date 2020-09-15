@@ -41,7 +41,6 @@ roslaunch op3_gazebo robotis_world.launch
 ```
 2. op3_controllerを起動する
 ```
-rosrun op3_controller record.py
 rosrun op3_controller controller.py
 rosrun op3_controller learning.py
 ```

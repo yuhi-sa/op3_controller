@@ -10,6 +10,12 @@ from op3_controller.msg import Command
 
 def callback(data):
     #Publisherを作成('トピック名',型,サイズ)
+    #左肩
+    l_sho_pitch = rospy.Publisher('robotis_op3/l_sho_pitch_position/command', Float64, queue_size=1)
+    l_sho_roll = rospy.Publisher('robotis_op3/l_sho_roll_position/command', Float64, queue_size=1)
+    #右肩
+    r_sho_pitch = rospy.Publisher('robotis_op3/r_sho_pitch_position/command', Float64, queue_size=1)
+    r_sho_roll = rospy.Publisher('robotis_op3/r_sho_roll_position/command', Float64, queue_size=1)
     #左腰
     l_hip_pitch = rospy.Publisher('robotis_op3/l_hip_pitch_position/command', Float64, queue_size=1)
     l_hip_roll = rospy.Publisher('robotis_op3/l_hip_roll_position/command', Float64, queue_size=1)
@@ -30,6 +36,10 @@ def callback(data):
     r_ank_roll = rospy.Publisher('robotis_op3/r_ank_roll_position/command', Float64, queue_size=1)     
 
     #データをpublish
+    l_sho_pitch.publish(data.l_sho_pitch)
+    l_sho_roll.publish(data.l_sho_roll)
+    r_sho_pitch.publish(data.r_sho_pitch)
+    r_sho_roll.publish(data.r_sho_roll)
     l_hip_pitch.publish(data.l_hip_pitch)
     l_hip_roll.publish(data.l_hip_roll)
     l_hip_yaw.publish(data.l_hip_yaw)

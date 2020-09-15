@@ -1,3 +1,7 @@
+float64 l_sho_pitch
+float64 l_sho_roll
+float64 r_sho_pitch
+float64 r_sho_roll
 float64 l_hip_pitch
 float64 l_hip_roll
 float64 l_hip_yaw
