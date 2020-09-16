@@ -41,7 +41,13 @@ roslaunch op3_gazebo robotis_world.launch
 ```
 2. op3_controllerを起動する
 ```
+conda activate (python2が入っているanaconda)
 rosrun op3_controller controller.py
+
+conda activate (python3が入っているanaconda)
+rosrun op3_controller record.py
+
+conda activate (python3が入っているanaconda)
 rosrun op3_controller learning.py
 ```
 # おまけ

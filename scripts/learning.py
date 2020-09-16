@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import rospy
 import math
+import sys
+import csv
+import threading
 from datetime import datetime
 from std_srvs.srv import Empty
 #メッセージ型をインポート
@@ -17,7 +20,7 @@ from gazebo_msgs.msg import ModelStates
 
 from function import Agent
 from motion import Motion
-#from videomake import videomake
+from videomake import Videomake
 
 import torch
 from torch import nn
@@ -26,7 +29,7 @@ import torch.nn.functional as F
 
 
 def reset(time_record):
-    print('############## Hello New World ##############')
+    print('############## 新世界へようこそ##############')
 
     #初期値に戻す
     pub = rospy.Publisher('command_pub', Command, queue_size=1)
@@ -86,18 +89,37 @@ def callback(data):
         agent.update_q_function()
 
     agent.state = next_state
-
-    ##################20秒ごとに試行をリセット##################
-    if time_record > (agent.start_time+20):
-        agent.start_time = reset(time_record)
-        agent.episode = agent.episode+1
+    
 
     #所定回数の時は録画
+    pub2 = rospy.Publisher('recorder', String, queue_size=1)
+    if (agent.episode%100) -1 == 0:
+        if not agent.last_index == agent.episode:
+            data = str(agent.last_index)
+            pub2.publish(data)
+            agent.last_index = agent.episode
 
-    #if agent.episode == 2:
-        #videomake(agent.episode)
+    
+    ##################20秒ごとに試行をリセット##################
+    if time_record > (agent.start_time+20):
 
+        #報酬履歴をcsv出力して消去
+
+        if (agent.episode%100)-1  == 0:
+            filename = str(agent.episode)+'.csv'
+            file = open(filename,"w")
+            w = csv.writer(file)
+            w.writerows(agent.history)
+            file.close()
+        
+        agent.history = []
+
+        #世界よさらば
+        print('############## さらば世界 ##############')
+        agent.start_time = reset(time_record)
+        agent.episode = agent.episode+1
     ######################################################
+
 
     #Publisherを作成('トピック名',型,サイズ)
     pub = rospy.Publisher('command_pub', Command, queue_size=1)
@@ -111,7 +133,11 @@ def callback(data):
     pub.publish(array)
 
     
-    print(agent.episode+1,'試行目',agent.trial,'回目','time',math.floor(time_record-agent.start_time),'distance',distance)
+    print(agent.episode,'試行目',agent.trial,'回目','time',math.floor(time_record-agent.start_time),'distance',distance)
+
+    #報酬の履歴を保存
+    agent.history.append([agent.trial,distance])
+
     agent.trial = agent.trial +1
 
 
@@ -142,6 +168,7 @@ if __name__ == '__main__':
         array = Command()
         global motion
         motion = Motion(array)
+
         controller()
     except rospy.ROSInitException:
         pass

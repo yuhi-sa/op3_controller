@@ -126,6 +126,8 @@ class Agent:
         self.start_time = 0
         self.trial = 0
         self.episode = 0
+        self.last_index = 0
+        self.history = []
 
     def update_q_function(self):
         self.brain.replay()
