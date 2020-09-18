@@ -26,7 +26,7 @@ def Videomake(episode):
     #動画のフレームレイト
     FPS=14
     #録画したい時間
-    movie_time=22
+    movie_time=40
     #上記フレームレイトと録画時間を満たす繰り返し数
     photo_no=FPS*movie_time
     #繰り返しスクリーンショットを撮り、ファイルに保存

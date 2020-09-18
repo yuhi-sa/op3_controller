@@ -45,7 +45,7 @@ conda activate (python2が入っているanaconda)
 rosrun op3_controller controller.py
 
 conda activate (python3が入っているanaconda)
-rosrun op3_controller record.py
+rosrun op3_controller recorder.py
 
 conda activate (python3が入っているanaconda)
 rosrun op3_controller learning.py
