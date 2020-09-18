@@ -10,6 +10,10 @@ from op3_controller.msg import Command
 
 def callback(data):
     #Publisherを作成('トピック名',型,サイズ)
+    #左肘
+    l_el = rospy.Publisher('robotis_op3/l_el_position/command', Float64, queue_size=1)
+    #右肘
+    r_el = rospy.Publisher('robotis_op3/r_el_position/command', Float64, queue_size=1)
     #左肩
     l_sho_pitch = rospy.Publisher('robotis_op3/l_sho_pitch_position/command', Float64, queue_size=1)
     l_sho_roll = rospy.Publisher('robotis_op3/l_sho_roll_position/command', Float64, queue_size=1)
@@ -28,14 +32,16 @@ def callback(data):
     l_knee = rospy.Publisher('robotis_op3/l_knee_position/command', Float64, queue_size=1)
     #右ひざ
     r_knee = rospy.Publisher('robotis_op3/r_knee_position/command', Float64, queue_size=1)
-    #左足首
-    l_ank_pitch = rospy.Publisher('robotis_op3/l_ank_pitch_position/command', Float64, queue_size=1)
-    l_ank_roll = rospy.Publisher('robotis_op3/l_ank_roll_position/command', Float64, queue_size=1)  
-    #右足首
-    r_ank_pitch = rospy.Publisher('robotis_op3/r_ank_pitch_position/command', Float64, queue_size=1)
-    r_ank_roll = rospy.Publisher('robotis_op3/r_ank_roll_position/command', Float64, queue_size=1)     
+    # #左足首
+    # l_ank_pitch = rospy.Publisher('robotis_op3/l_ank_pitch_position/command', Float64, queue_size=1)
+    # l_ank_roll = rospy.Publisher('robotis_op3/l_ank_roll_position/command', Float64, queue_size=1)  
+    # #右足首
+    # r_ank_pitch = rospy.Publisher('robotis_op3/r_ank_pitch_position/command', Float64, queue_size=1)
+    # r_ank_roll = rospy.Publisher('robotis_op3/r_ank_roll_position/command', Float64, queue_size=1)     
 
     #データをpublish
+    l_el.publish(data.l_el)
+    r_el.publish(data.r_el)
     l_sho_pitch.publish(data.l_sho_pitch)
     l_sho_roll.publish(data.l_sho_roll)
     r_sho_pitch.publish(data.r_sho_pitch)
@@ -48,10 +54,11 @@ def callback(data):
     r_hip_yaw.publish(data.r_hip_yaw)
     l_knee.publish(data.l_knee)
     r_knee.publish(data.r_knee)
-    l_ank_pitch.publish(data.l_ank_pitch)
-    l_ank_roll.publish(data.l_ank_roll)
-    r_ank_pitch.publish(data.r_ank_pitch)
-    r_ank_roll.publish(data.r_ank_roll)
+    # l_ank_pitch.publish(data.l_ank_pitch)
+    # l_ank_roll.publish(data.l_ank_roll)
+    # r_ank_pitch.publish(data.r_ank_pitch)
+    # r_ank_roll.publish(data.r_ank_roll)
+
 
 def controller():
     #ノード名を宣言

@@ -114,9 +114,6 @@ class Brain:
 
 
 
-
-
-
 # エージェント
 class Agent:
     def __init__(self, num_states, num_actions):
