@@ -26,10 +26,10 @@ class ReplayMemory:
         self.memory = [] #経験を保存する変数
         self.index = 0 #保存するindexを示す変数
     
-    def push(self, state, action, state_next, reward):
+    def push(self, state, action, next_state, reward):
         if len(self.memory) < self.capacity:
             self.memory.append(None)
-        self.memory[self.index] = Transition(state, action, state_next, reward)
+        self.memory[self.index] = Transition(state, action, next_state, reward)
         self.index = (self.index + 1)%self.capacity #保存するindexを1ずらす
     
     def sample(self, batch_size):
@@ -44,16 +44,17 @@ class ReplayMemory:
 class Brain:
     def __init__(self, num_states, num_actions):
         self.actions = num_actions
+        self.states = num_states
         #経験を記憶するメモリオブジェクトを作成
         self.memory = ReplayMemory(CAPACITY)
         
         #ニューラルネットワークを構成
         self.model = nn.Sequential()
-        self.model.add_module('fc1', nn.Linear(num_states, 32))
+        self.model.add_module('fc1', nn.Linear(self.states, 32))
         self.model.add_module('relu1', nn.ReLU())
         self.model.add_module('fc2', nn.Linear(32,32))
         self.model.add_module('relu2', nn.ReLU())
-        self.model.add_module('fc3', nn.Linear(32, num_actions))
+        self.model.add_module('fc3', nn.Linear(32, self.actions))
 
         #最適化手法の設定
         self.optimizer = optim.Adam(self.model.parameters(),lr=0.0001)
@@ -71,7 +72,6 @@ class Brain:
         action_batch = torch.cat(batch.action)
         reward_batch = torch.cat(batch.reward)
         non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
-
 
         #ネットワークを推論モードに
         self.model.eval()
@@ -100,9 +100,9 @@ class Brain:
         self.optimizer.step() #結合パラメータの更新
 
     def decide_action(self, state, episode):
-        epsilon = 0.5*(1/(episode+1))
+        epsilon = 1/(episode+1)
 
-        if epsilon > np.random.uniform(0,1):
+        if epsilon <= np.random.uniform(0,1):
             #ネットワークを推論モードに
             self.model.eval()
             with torch.no_grad():
@@ -119,6 +119,7 @@ class Agent:
     def __init__(self, num_states, num_actions):
         self.brain = Brain(num_states, num_actions)
         self.state = None
+        self.next_state = []
         self.action = 0
         self.start_time = 0
         self.trial = 0

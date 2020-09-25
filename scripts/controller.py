@@ -33,11 +33,11 @@ def callback(data):
     #右ひざ
     r_knee = rospy.Publisher('robotis_op3/r_knee_position/command', Float64, queue_size=1)
     # #左足首
-    # l_ank_pitch = rospy.Publisher('robotis_op3/l_ank_pitch_position/command', Float64, queue_size=1)
-    # l_ank_roll = rospy.Publisher('robotis_op3/l_ank_roll_position/command', Float64, queue_size=1)  
+    l_ank_pitch = rospy.Publisher('robotis_op3/l_ank_pitch_position/command', Float64, queue_size=1)
+    l_ank_roll = rospy.Publisher('robotis_op3/l_ank_roll_position/command', Float64, queue_size=1)  
     # #右足首
-    # r_ank_pitch = rospy.Publisher('robotis_op3/r_ank_pitch_position/command', Float64, queue_size=1)
-    # r_ank_roll = rospy.Publisher('robotis_op3/r_ank_roll_position/command', Float64, queue_size=1)     
+    r_ank_pitch = rospy.Publisher('robotis_op3/r_ank_pitch_position/command', Float64, queue_size=1)
+    r_ank_roll = rospy.Publisher('robotis_op3/r_ank_roll_position/command', Float64, queue_size=1)     
 
     #データをpublish
     l_el.publish(data.l_el)
@@ -54,10 +54,11 @@ def callback(data):
     r_hip_yaw.publish(data.r_hip_yaw)
     l_knee.publish(data.l_knee)
     r_knee.publish(data.r_knee)
-    # l_ank_pitch.publish(data.l_ank_pitch)
-    # l_ank_roll.publish(data.l_ank_roll)
-    # r_ank_pitch.publish(data.r_ank_pitch)
-    # r_ank_roll.publish(data.r_ank_roll)
+
+    l_ank_pitch.publish(0.00)
+    l_ank_roll.publish(0.00)
+    r_ank_pitch.publish(0.00)
+    r_ank_roll.publish(0.00)
 
 
 def controller():
