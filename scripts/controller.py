@@ -10,6 +10,9 @@ from op3_controller.msg import Command
 
 def callback(data):
     #Publisherを作成('トピック名',型,サイズ)
+    #頭
+    head_pan = rospy.Publisher('/robotis_op3/head_pan_position/command', Float64, queue_size=1)
+    head_tilt = rospy.Publisher('/robotis_op3/head_tilt_position/command', Float64, queue_size=1)
     #左肘
     l_el = rospy.Publisher('robotis_op3/l_el_position/command', Float64, queue_size=1)
     #右肘
@@ -55,9 +58,13 @@ def callback(data):
     l_knee.publish(data.l_knee)
     r_knee.publish(data.r_knee)
 
-    l_ank_pitch.publish(0.00)
+    head_pan.publish(0.00)
+    head_tilt.publish(0.00)
+
+
+    l_ank_pitch.publish(0.95)
     l_ank_roll.publish(0.00)
-    r_ank_pitch.publish(0.00)
+    r_ank_pitch.publish(-0.95)
     r_ank_roll.publish(0.00)
 
 

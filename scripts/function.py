@@ -11,7 +11,7 @@ from collections import namedtuple
 
 BATCH_SIZE = 32
 CAPACITY = 10000000
-GAMMA = 0.01
+GAMMA = 0.05
 
 #namedtupleを作成
 Transition = namedtuple(
@@ -126,6 +126,8 @@ class Agent:
         self.episode = 0
         self.last_index = 0
         self.history = []
+        self.distance_tmp = 0
+        self.gosa_tmp = 0
 
     def update_q_function(self):
         self.brain.replay()

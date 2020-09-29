@@ -24,7 +24,7 @@ def Videomake(episode):
     img_list = []
     img_No = 0
     #動画のフレームレイト
-    FPS=14
+    FPS=64
     #録画したい時間
     movie_time=40
     #上記フレームレイトと録画時間を満たす繰り返し数

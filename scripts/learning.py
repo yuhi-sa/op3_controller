@@ -62,7 +62,7 @@ def reset(time_record):
     # state_msg.pose.orientation.w = 0.5
     # pub.publish(state_msg)
 
-    time.sleep(1)
+    time.sleep(2)
     return time_record
 
 ########################################################################################
@@ -85,7 +85,6 @@ def callback(data):
     agent.next_state.append(data.twist[1].angular.x)
     agent.next_state.append(data.twist[1].angular.y)
     agent.next_state.append(data.twist[1].angular.z)
-
 ########################################################################################
 
 
@@ -108,11 +107,15 @@ def learning(next_state,time_record):
     next_state = torch.unsqueeze(next_state, 0)
 
     #報酬設計
-    if high >0.2:
-        reward = distance + 5 - gosa/2
-    else:
-        reward = distance - gosa/2
+    if high >=0.15 and distance-agent.distance_tmp>=0:
+        reward = (distance-agent.distance_tmp)*1000  #- (gosa-agent.gosa_tmp)*10
+    elif high >=0.15 and distance-agent.distance_tmp<0:
+        reward = (distance-agent.distance_tmp)*10  #- (gosa-agent.gosa_tmp)*10
+    elif high < 0.15:
+        reward = -2 + (distance-agent.distance_tmp)*10 #- (gosa-agent.gosa_tmp)*10
     
+    agent.distance_tmp = distance
+    agent.gosa_tmp = gosa
     reward_tmp = reward
     #Pytorchで使える形に
     reward = np.array(reward)
@@ -124,11 +127,14 @@ def learning(next_state,time_record):
         agent.update_q_function()
 
     agent.state = next_state
+
+    print('試行数:', agent.episode-1, '回数：', agent.trial, '秒数：', math.floor(time_record-agent.start_time), '報酬：', math.floor(reward_tmp*100)/100, 
+            '距離：', distance)
     
 
     ###所定回数の時は録画###############################################
     pub2 = rospy.Publisher('recorder', String, queue_size=1)
-    if (agent.episode%50) -2 == 0:
+    if (agent.episode%200) -2 == 0:
         if not agent.last_index == agent.episode:
             data = str(agent.last_index)
             pub2.publish(data)
@@ -136,7 +142,7 @@ def learning(next_state,time_record):
     #################################################################
     
     ###20秒ごとに試行をリセット はじめの一回目は一応姿勢治すためにリセット###########
-    if time_record > (agent.start_time+20) or agent.episode==1 :
+    if time_record > (agent.start_time+20) or agent.episode==1 or high < 0.15:
         #世界よさらば
         print('############## さらば世界 ##############')
         agent.start_time = reset(time_record)
@@ -157,9 +163,6 @@ def learning(next_state,time_record):
     array = motion.motion(agent.action)
     pub.publish(array)
 
-    
-    print('試行数:', agent.episode-1, '回数：', agent.trial, '秒数：', math.floor(time_record-agent.start_time), '報酬：', math.floor(reward_tmp), 
-            '距離：', distance)
 
     #報酬の履歴を保存
     #agent.history.append([agent.trial,distance])
@@ -188,7 +191,7 @@ def controller():
         if len(agent.next_state) > 0:
             learning(agent.next_state,time_record)
         #行動周期を遅らせる
-        time.sleep(0.05)
+        time.sleep(0.02)
         rate.sleep()
 
 ########################################################################################
@@ -196,7 +199,7 @@ def controller():
 if __name__ == '__main__':
     try:
         num_states = 13 #状態数
-        num_actions = 8 #行動数
+        num_actions = 3 #行動数
         global agent
         agent = Agent(num_states, num_actions) #強化学習するエージェント
         array = Command()
