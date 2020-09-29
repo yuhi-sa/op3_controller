@@ -1,6 +1,8 @@
 # op3_controller
 [ROBOTIS OP3](https://emanual.robotis.com/docs/en/platform/op3/simulation/)にGazeboシミュレーション内で強化学習を用いて歩行獲得させるROSパッケージ．
 
+[![デモ動画](https://img.youtube.com/vi/gUNoE_8Rfo4/0.jpg)](https://www.youtube.com/watch?v=gUNoE_8Rfo4)
+
 # 環境
 - [Ubuntu 16.04 LTS](https://wiki.ubuntu.com/XenialXerus/ReleaseNotes/Ja#Ubuntu_16.04.2BMG4wwDCmMPMw7TD8MMk-)
 - [ROS kinetic](http://wiki.ros.org/ja/kinetic/Installation/Ubuntu)
