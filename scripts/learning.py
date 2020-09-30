@@ -148,6 +148,13 @@ def learning(next_state,time_record):
         agent.start_time = reset(time_record)
         agent.trial = 0
         agent.episode = agent.episode+1
+        agent.history.append(distance)
+    
+        if agent.episode == 60:
+            file = open('distance_record.csv', 'w') 
+            w = csv.writer(file)
+            w.writerow(agent.history)
+            file.close()
     #################################################################
 
 
