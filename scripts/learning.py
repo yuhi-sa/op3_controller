@@ -107,11 +107,11 @@ def learning(next_state,time_record):
     next_state = torch.unsqueeze(next_state, 0)
 
     #報酬設計
-    if high >=0.15 and distance-agent.distance_tmp>=0:
+    if high >=0.145 and distance-agent.distance_tmp>=0:
         reward = (distance-agent.distance_tmp)*1000  #- (gosa-agent.gosa_tmp)*10
-    elif high >=0.15 and distance-agent.distance_tmp<0:
+    elif high >=0.145 and distance-agent.distance_tmp<0:
         reward = (distance-agent.distance_tmp)*10  #- (gosa-agent.gosa_tmp)*10
-    elif high < 0.15:
+    elif high < 0.145:
         reward = -2 + (distance-agent.distance_tmp)*10 #- (gosa-agent.gosa_tmp)*10
     
     agent.distance_tmp = distance
@@ -142,7 +142,7 @@ def learning(next_state,time_record):
     #################################################################
     
     ###20秒ごとに試行をリセット はじめの一回目は一応姿勢治すためにリセット###########
-    if time_record > (agent.start_time+20) or agent.episode==1 or high < 0.15:
+    if time_record > (agent.start_time+20) or agent.episode==1 or high < 0.145:
         #世界よさらば
         print('############## さらば世界 ##############')
         agent.start_time = reset(time_record)
@@ -150,7 +150,7 @@ def learning(next_state,time_record):
         agent.episode = agent.episode+1
         agent.history.append(distance)
     
-        if agent.episode == 60:
+        if agent.episode == 100:
             file = open('distance_record.csv', 'w') 
             w = csv.writer(file)
             w.writerow(agent.history)
@@ -198,7 +198,7 @@ def controller():
         if len(agent.next_state) > 0:
             learning(agent.next_state,time_record)
         #行動周期を遅らせる
-        time.sleep(0.02)
+        time.sleep(0.025)
         rate.sleep()
 
 ########################################################################################
