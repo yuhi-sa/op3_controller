@@ -150,11 +150,31 @@ def learning(next_state,time_record):
         agent.episode = agent.episode+1
         agent.history.append(distance)
     
-        if agent.episode == 100:
+        #距離を記録
+        if agent.episode == 50:
             file = open('distance_record.csv', 'w') 
             w = csv.writer(file)
             w.writerow(agent.history)
             file.close()
+
+        #行動履歴を出力
+        filename1 = "action" + str(agent.episode) +".csv"
+        file1 = open(filename1, 'w') 
+        w = csv.writer(file1)
+        w.writerow(agent.history1)
+        file1.close()
+
+        #高さ履歴を出力
+        filename2 = "high" + str(agent.episode) +".csv"
+        file2 = open(filename2, 'w') 
+        w = csv.writer(file2)
+        w.writerow(agent.history2)
+        file2.close()
+
+        #行動と高さを初期化
+        agent.history1 = []
+        agent.history2 = []
+
     #################################################################
 
 
@@ -175,6 +195,18 @@ def learning(next_state,time_record):
     #agent.history.append([agent.trial,distance])
 
     agent.trial = agent.trial +1
+
+    #行動を記録
+    tmp_action = agent.action.to('cpu').detach().numpy().copy()
+    if tmp_action[0][0] == 0:
+        agent.history1.append(0)
+    if tmp_action[0][0] == 1:
+        agent.history1.append(1)
+    if tmp_action[0][0] == 2:
+        agent.history1.append(2)
+
+    #高さを記録
+    agent.history2.append(high)
 
 ########################################################################################
 

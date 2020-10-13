@@ -126,6 +126,8 @@ class Agent:
         self.episode = 0
         self.last_index = 0
         self.history = []
+        self.history1 = []
+        self.history2 = []
         self.distance_tmp = 0
         self.gosa_tmp = 0
 
